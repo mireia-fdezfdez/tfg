@@ -1,0 +1,2 @@
+data_corr:
+  correlation between original variables and the scenario they belong to
