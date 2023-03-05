@@ -1,0 +1,4 @@
+Required python packages:
+- os
+- pandas
+- numpy
