@@ -5,6 +5,19 @@ import os
 
 
 # internal imports
+def both_ways(dataset):  # TODO. Optimize function
+    """Adds rows to the dataset so that a connection between to nodes is
+    counted in both directions"""
+    column_list = list(dataset.columns)
+
+    # Use the indices to swap the columns of "Node" and "Node2"
+    column_list[2], column_list[3] = column_list[3], column_list[2]
+    auxiliar = dataset[column_list]
+    dataset = pd.concat([auxiliar, dataset], ignore_index=True)
+
+    return dataset
+
+
 def find_mean(temps):
     """Calculates the mean pair value given a list"""
     # If there is no info in the list, then there is no full circle of connections
