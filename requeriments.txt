@@ -2,3 +2,6 @@ Required python packages:
 - os
 - pandas
 - numpy
+- seaborn
+- matplotlib
+- torchvision 
