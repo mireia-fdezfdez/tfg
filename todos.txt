@@ -9,7 +9,7 @@ logistic regression:
     - create model using the nn structure
     - evaluate against first model
 
-neural networks wise:
+neural networks:
 - modify data loader
 - modify train function
 - make pickle work (module does not seem to cooperate with me)
