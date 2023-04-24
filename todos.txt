@@ -1,6 +1,7 @@
 NOTEBOOKS
 ---------
 preprocessing:
+- finish node centrality attribute 
 - generate *two* files, separate by random nodes to test on
 
 logistic regression:
