@@ -1,7 +1,6 @@
 NOTEBOOKS
 ---------
 preprocessing:
-- finish node centrality attribute 
 - generate *two* files, separate by random nodes to test on
 
 logistic regression:
@@ -18,7 +17,7 @@ neural networks:
 
 SOURCE CODE
 -----------
-- uptade utils
+- document utils (both_ways and elastic_centrality)
 - modify preprocessing -> generate two files accordingly
 - create logistic regression training
 - create neural networks training
