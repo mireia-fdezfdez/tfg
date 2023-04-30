@@ -12,7 +12,7 @@ logistic regression:
 neural networks:
 - modify data loader
 - modify train function
-- make pickle work (module does not seem to cooperate with me)
+- make pickle work again (module does not seem to cooperate with me)
 - evaluate again with new files
 
 SOURCE CODE
@@ -22,6 +22,7 @@ SOURCE CODE
 - create logistic regression training
 - create neural networks training
 - create scoring models script (any model saved by pickle)
+- create saving function that ampliates the traces
 
 REPORT
 ------
