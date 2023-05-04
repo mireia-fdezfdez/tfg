@@ -1,12 +1,8 @@
 NOTEBOOKS
----------
-preprocessing:
-- analysis of EC
-- revisar todos los analisis
+----------
 - codi a català
 
 logistic regression:
-- codi a català
 - evaluate again with new files
 - fair treatment:
     - create model using the nn structure
@@ -20,12 +16,9 @@ neural networks:
 
 SOURCE CODE
 -----------
-- document utils (both_ways and elastic_centrality)
-- create logistic regression training
-- create neural networks training
+- create trainings (logreg sklearn, logreg pytorch, nns)
 - create scoring models script (any model saved by pickle)
 - create saving function that ampliates the traces
-- codi a català
 
 REPORT
 ------
