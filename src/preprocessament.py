@@ -2,10 +2,10 @@ from utils import *
 
 # recollim tots els fitxers en un únic llistat
 escenaris = [file for file in os.scandir("Scenarios")]
-# escenaris = [open("Scenario01.txt"), open("Scenario04.txt")]
 
-# inicialització del dataset final
-final_dataset = pd.DataFrame(columns=["Node", "NumCont", "DURC", "ICT", "Escenari"])
+# inicialització dels datasets finals
+final_dataset_entr = pd.DataFrame(columns=["Node", "NumCont", "DURC", "ICT", "EC", "Escenari"])
+final_dataset_val = pd.DataFrame(columns=["Node", "NumCont", "DURC", "ICT", "EC", "Escenari"])
 
 # itera per tots els fitxers i extreu les dades
 for xarxa, escenari in zip(escenaris, range(1, len(escenaris) + 1)):
@@ -14,21 +14,46 @@ for xarxa, escenari in zip(escenaris, range(1, len(escenaris) + 1)):
     dataset.drop(["CONN"], axis=1, inplace=True)
 
     # afegim el "Node2" a la columna "Node" per a tenir en compte la connexió en les dues direccions
-    dataset = both_ways(dataset)
-    print("Data from", escenari, "modified.")
+    dataset = dues_direccions(dataset)
+    print("Dades de l'escenari", escenari, "modificades.")
 
-    one_file = dataset.groupby(['Node'])["Node2"].size().reset_index(name='NumCont')
+    ratio_validacio = 0.2
+    nodes_escenari = dataset.Node.unique()
 
-    temps = dataset.groupby(['Node', 'Node2']).agg(pair_DURC=("Time", mean_conn_duration),
-                                                   pair_ICT=("Time", mean_btw_conns)).reset_index()
-    final_attrs = temps.groupby(['Node']).agg(DURC=("pair_DURC", np.mean), ICT=("pair_ICT", np.mean)).reset_index()
+    nodes_validacio = []
+    for _ in range(int(max(nodes_escenari) * ratio_validacio)):
+        nodes_validacio.append(random.choice(nodes_escenari))
 
-    one_file = one_file.merge(final_attrs, how='inner')
-    one_file["Escenari"] = escenari
+    entrenament = dataset[~dataset.Node.isin(nodes_validacio)]
+    validacio = dataset[dataset.Node.isin(nodes_validacio)]
 
-    final_dataset = pd.concat([one_file, final_dataset], ignore_index=True)
-    print("File", escenari, "done!\n")
+    one_file_entr = entrenament.groupby(['Node'])["Node2"].size().reset_index(name='NumCont')
+    one_file_val = validacio.groupby(['Node'])["Node2"].size().reset_index(name='NumCont')
 
-# guarda el dataset complet en un fitxer a part
-final_dataset.to_csv("all_scenarios_bo.csv", encoding='utf-8', index=False)
-print("Dataset successfully saved.")
+    temps_train = entrenament.groupby(['Node', 'Node2']).agg(pair_DURC=("Time", mitjana_duracio_conns),
+                                                             pair_ICT=("Time", mitjana_entre_conns)).reset_index()
+    final_attrs_train = temps_train.groupby(['Node']).agg(DURC=("pair_DURC", np.mean), ICT=("pair_ICT", np.mean)).reset_index()
+    temps_test = validacio.groupby(['Node', 'Node2']).agg(pair_DURC=("Time", mitjana_duracio_conns),
+                                                          pair_ICT=("Time", mitjana_entre_conns)).reset_index()
+    final_attrs_test = temps_test.groupby(['Node']).agg(DURC=("pair_DURC", np.mean), ICT=("pair_ICT", np.mean)).reset_index()
+
+    ec_entrenament = entrenament.groupby(['Node'], as_index=False).apply(centralitat_elastica)
+    ec_validacio = validacio.groupby(['Node'], as_index=False).apply(centralitat_elastica)
+
+    one_file_entr = one_file_entr.merge(final_attrs_train, how='inner')
+    one_file_entr = one_file_entr.merge(ec_entrenament, how='inner')
+    one_file_entr["Escenari"] = escenari
+
+    one_file_val = one_file_val.merge(final_attrs_test, how='inner')
+    one_file_val = one_file_val.merge(ec_validacio, how='inner')
+    one_file_val["Escenari"] = escenari
+
+    final_dataset_train = pd.concat([one_file_entr, final_dataset_entr], ignore_index=True)
+    final_dataset_test = pd.concat([one_file_val, final_dataset_val], ignore_index=True)
+    print("Escenari", escenari, "afegit!\n")
+
+# guarda els datasets complets en un fitxer a part
+final_dataset_entr.to_csv("all_scenarios_train.csv", encoding='utf-8', index=False)
+final_dataset_val.to_csv("all_scenarios_test.csv", encoding='utf-8', index=False)
+
+print("Dades guardades correctament.")

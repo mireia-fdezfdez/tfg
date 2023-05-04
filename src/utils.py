@@ -1,61 +1,81 @@
-# external imports
+# imports externs
 import numpy as np
 import pandas as pd
 import os
+import random
 
 
-# internal imports
-def both_ways(dataset):  # TODO. Optimize function
-    """Adds rows to the dataset so that a connection between to nodes is
-    counted in both directions"""
-    column_list = list(dataset.columns)
+# imports interns: llibreria de funcionalitats
+def dues_direccions(dataset):
+    """Afegeix files al set de dades tal que les connexions entre
+    nodes es tinguin en conta en les dues direccions."""
+    llista_cols = list(dataset.columns)
 
-    # Use the indices to swap the columns of "Node" and "Node2"
-    column_list[2], column_list[3] = column_list[3], column_list[2]
-    auxiliar = dataset[column_list]
-    dataset = pd.concat([auxiliar, dataset], ignore_index=True)
+    # Usem els indexs per a intercanviar les columnes "Node" i "Node2"
+    llista_cols[2], llista_cols[3] = llista_cols[3], llista_cols[2]
+    auxiliar = dataset[llista_cols]
 
-    return dataset
+    return pd.concat([auxiliar, dataset], ignore_index=True)
 
 
-def find_mean(temps):
-    """Calculates the mean pair value given a list"""
-    # If there is no info in the list, then there is no full circle of connections
-    # and so provisionally, we count as 0 (because we cannot divide by 0 later)
+def centralitat_elastica(data):
+    """Calcula la centralitat dels nodes donada una taula de dades."""
+    k = 30
+    gamma = 0.98
+    ec_node = 0
+    ec_temps = 0
+
+    # iterem sobre les dades
+    for temps, accio in zip(data['Time'], data['Type']):
+
+        # actualitzem la variable si ha passat suficient temps
+        if ec_temps >= k:
+            ec_node = ec_node * gamma ** k
+
+        # tractem les dades segons l'acció que pren lloc
+        if accio == 'up':
+            ec_node += 1
+        if accio == 'down':
+            ec_temps = temps - ec_temps
+
+    return pd.Series({'EC': ec_node})
+
+
+def trobar_mitjana(temps):
+    """Calcula la mitja per parelles donada una llista de valor."""
     if len(temps) == 0:
         return 0
 
     temps = temps.tolist()
 
-    # Find each pair, compute the time between items and return its mean value
-    t_connected = 0
+    # Troba cada parella, computa el temps entre accions i retorna la mitjana
+    t_connectats = 0
     for i in range(0, len(temps), 2):
         inici = temps[i]
         final = temps[i + 1]
-        t_connected += (final - inici)
+        t_connectats += (final - inici)
 
-    return t_connected / (len(temps) / 2)
+    return t_connectats / (len(temps) / 2)
 
 
-def mean_btw_conns(temps):
-    """To calculate the mean time between different connections (ICT)"""
-    # If the list is even then the last value is a "down" item and we take it
-    # down to not disturb the calculations
+def mitjana_entre_conns(temps):
+    """Calcula la mitjana de temps entre diferents connexions (ICT)"""
+    # Si la llargada de la llista és parell, llavors l'ultima fila tindrà com
+    # a acció 'down', per tant, treiem l'entrada fet que volem parelles inverses
     if len(temps) % 2 == 0:
         temps = temps[:-1]
 
-    # We take down the first item in the list, so we have inverse pairs to calculate
-    # the time mean
+    # Treiem la primera filera per a tenir les parelles inverses de connexions
     temps = temps[1:]
 
-    return find_mean(temps)
+    return trobar_mitjana(temps)
 
 
-def mean_conn_duration(temps):
-    """To calculate the mean time of the connection's duration (DURC)"""
-    # If the list is not even then the last communication did not conclude
-    # provisionally, we take it down
+def mitjana_duracio_conns(temps):
+    """Calcula la mitja de temps entre connexions (DURC)"""
+    # Si la llargada de la llista no és parell, l'ultima connexio no ha
+    # acabat, i per tal de no tenir un infinit, treiem dita entrada
     if len(temps) % 2 != 0:
         temps = temps[:-1]
 
-    return find_mean(temps)
+    return trobar_mitjana(temps)
