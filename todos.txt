@@ -1,22 +1,9 @@
-NOTEBOOKS
-----------
-- codi a català
-
-logistic regression sklearn:
-- evaluate again with new files
-
-neural networks:
-- modify data loader
-- modify train function
-- evaluate again with new files
-- save models with pickle
-
 SOURCE CODE
 -----------
-- create trainings (logreg sklearn, logreg pytorch, nns)
-- create scoring models script (any model saved by pickle)
-- create saving function that ampliates the traces
+- (optional) create trainings (logreg sklearn, logreg pytorch, nns)
+- create scoring models script (any model saved by pickle) + saving function that ampliates the traces
 
 REPORT
 ------
-- everything (intro, objectives, preprocessing, eda, etc.)
+- establish final structure (proposal)
+- write everything!
